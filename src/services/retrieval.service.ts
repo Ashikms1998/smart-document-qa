@@ -1,3 +1,5 @@
+//What happens here is => using the vector → find relevant chunks
+
 import pool from "../config/database.js";
 
 export async function findSimilarChunks(

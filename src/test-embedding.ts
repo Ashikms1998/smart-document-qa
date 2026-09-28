@@ -1,3 +1,28 @@
+import "dotenv/config";
+import { generateAnswer } from "./services/generation.service.js";
+import { findSimilarChunks } from "./services/retrieval.service.js";
+import { generateEmbedding } from "./services/embedding.services.js";
+
+async function testRAG() {
+    const question = "Where is the Eiffel Tower located?";
+
+    const questionEmbedding = await generateEmbedding(question)
+    const results = await findSimilarChunks(questionEmbedding,3)
+
+    const context = results.map((result)=>result.content).join("\n");
+
+    console.log("Retrieved context:");
+    console.log(context);
+
+    const answer = await generateAnswer(question,context);
+    console.log("\nAnswer:")
+    console.log(answer)
+
+}
+
+testRAG();
+
+
 // import "dotenv/config";
 // import { generateEmbedding } from "./services/embedding.services.js";
 // import { saveChunk } from "./services/document.services.js";
@@ -18,22 +43,61 @@
 
 // testEmbedding();
 
-import "dotenv/config";
-import { generateEmbedding } from "./services/embedding.services.js";
-import { findSimilarChunks } from "./services/retrieval.service.js";
 
-async function testSimilarity() {
-    const question = "What type of database is PostgreSQL?";
 
-    const questionEmbedding = await generateEmbedding(question);
 
-    const result = await findSimilarChunks(questionEmbedding,5);
 
-    console.log("Question embedding length:",questionEmbedding.length);
 
-    console.log("Search results:");
 
-    console.log(result)
-}
+// import "dotenv/config";
+// import { generateEmbedding } from "./services/embedding.services.js";
+// import { findSimilarChunks } from "./services/retrieval.service.js";
+// import { saveChunk } from "./services/document.services.js";
 
-testSimilarity();
+// async function testSimilarity() {
+//     const question = "Where is Eiffel tower located?";
+
+//     const questionEmbedding = await generateEmbedding(question);
+
+//     const result = await findSimilarChunks(questionEmbedding,5);
+
+//     console.log("Question embedding length:",questionEmbedding.length);
+
+//     console.log("Search results:");
+
+//     console.log(result)
+// }
+
+// testSimilarity();
+
+
+
+
+
+
+
+// const documentId = "058623fe-fc36-4ed8-aecf-8bc7b0ddc799";
+
+// async function addTestChunks() {
+//     const chunks = [
+//     "The Eiffel Tower is located in Paris.",
+//     "JavaScript is a programming language.",
+//     "MongoDB is a NoSQL document database.",
+//     ];
+
+//     for(let i=0;i<chunks.length;i++){
+//         const content = chunks[i]!;
+//         const embedding = await generateEmbedding(content);
+
+//         const savedChunk =await saveChunk(
+//             documentId,
+//             content,
+//             i+1,
+//             embedding
+//         );
+
+//         console.log("Saved Chunk:",savedChunk)
+//     }
+// }
+
+// addTestChunks();
