@@ -1,26 +1,47 @@
 import "dotenv/config";
-import { generateAnswer } from "./services/generation.service.js";
-import { findSimilarChunks } from "./services/retrieval.service.js";
-import { generateEmbedding } from "./services/embedding.services.js";
+
+import { answerQuestion } from "./services/rag.service.js";
 
 async function testRAG() {
     const question = "Where is the Eiffel Tower located?";
 
-    const questionEmbedding = await generateEmbedding(question)
-    const results = await findSimilarChunks(questionEmbedding,3)
+    const answer = await answerQuestion(question);
 
-    const context = results.map((result)=>result.content).join("\n");
-
-    console.log("Retrieved context:");
-    console.log(context);
-
-    const answer = await generateAnswer(question,context);
-    console.log("\nAnswer:")
+    console.log("Answer:");
     console.log(answer)
-
 }
 
 testRAG();
+
+
+
+
+
+
+
+// import "dotenv/config";
+// import { generateAnswer } from "./services/generation.service.js";
+// import { findSimilarChunks } from "./services/retrieval.service.js";
+// import { generateEmbedding } from "./services/embedding.services.js";
+
+// async function testRAG() {
+//     const question = "Where is the Eiffel Tower located?";
+
+//     const questionEmbedding = await generateEmbedding(question)
+//     const results = await findSimilarChunks(questionEmbedding,3)
+
+//     const context = results.map((result)=>result.content).join("\n");
+
+//     console.log("Retrieved context:");
+//     console.log(context);
+
+//     const answer = await generateAnswer(question,context);
+//     console.log("\nAnswer:")
+//     console.log(answer)
+
+// }
+
+// testRAG();
 
 
 // import "dotenv/config";
