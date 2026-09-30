@@ -27,7 +27,7 @@ async function testExtraction() {
         "src/test-documents/sample.txt"
     )
 
-    const chunks = chunkTest(text,10)
+    const chunks = chunkTest(text,2,1)
 
     console.log("Chunks:"),
     console.log(chunks);

@@ -1,16 +1,17 @@
 export function chunkTest(
     text:string,
-    chunkSize:number = 20,
-    overlap: number=2
+    maxSentences:number = 2,
+    overlapSentences: number=1
 ) : string[] {
-    const words = text.split(/\s+/)
+    const sentences = text.split(/(?<=[.!?])\s+/)
+    .filter((sentence)=> sentence.trim().length > 0);
 
     const chunks:string[] = [];
 
-    const step = chunkSize-overlap;
+    const step = maxSentences-overlapSentences;
 
-    for(let i=0;i< words.length;i=i+step){
-        const chunk = words.slice(i,i+chunkSize).join(" ");
+    for(let i=0;i< sentences.length;i=i+step){
+        const chunk = sentences.slice(i,i+maxSentences).join(" ");
         chunks.push(chunk);
     }
     return chunks;
