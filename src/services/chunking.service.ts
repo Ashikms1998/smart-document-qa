@@ -1,18 +1,40 @@
-export function chunkTest(
-    text:string,
-    maxSentences:number = 2,
-    overlapSentences: number=1
-) : string[] {
+import { countTokens } from "./token.service.js";
+
+export async function chunkTest(
+    text: string,
+    maxTokens: number = 100,
+    overlapSentences: number = 1
+): Promise<string[]> {
     const sentences = text.split(/(?<=[.!?])\s+/)
-    .filter((sentence)=> sentence.trim().length > 0);
+        .filter((sentence) => sentence.trim().length > 0);
 
-    const chunks:string[] = [];
+    const chunks: string[] = [];
 
-    const step = maxSentences-overlapSentences;
+    let currentSentences: string[] = [];
 
-    for(let i=0;i< sentences.length;i=i+step){
-        const chunk = sentences.slice(i,i+maxSentences).join(" ");
-        chunks.push(chunk);
+    for (const sentence of sentences) {
+        const candidateSentences = [
+            ...currentSentences, sentence
+        ];
+
+        const candidateChunk = candidateSentences.join(" ");
+        const tokenCount = await countTokens(candidateChunk);
+
+        if (currentSentences.length > 0 && tokenCount > maxTokens) {
+            chunks.push(currentSentences.join(" "));
+
+            currentSentences = currentSentences.slice(-overlapSentences);
+
+            currentSentences.push(sentence);
+        } else {
+            currentSentences.push(sentence);
+        }
+
     }
+
+    if (currentSentences.length > 0) {
+        chunks.push(currentSentences.join(" "));
+    }
+
     return chunks;
 }
