@@ -1,0 +1,7 @@
+PostgreSQL is a relational database system.
+
+It supports SQL and can be extended using extensions such as pgvector.
+
+pgvector allows PostgreSQL to store and search vector embeddings.
+
+The Eiffel Tower is located in Paris.

@@ -1,3 +1,5 @@
+//What happens here is => store/retrieve document chunks
+
 import pool from '../config/database.js'
 
 export async function saveChunk(

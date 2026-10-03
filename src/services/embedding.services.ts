@@ -1,3 +1,5 @@
+//What happens here is => converting text->vector value using gemini model
+
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI();
