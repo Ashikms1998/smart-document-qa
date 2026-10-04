@@ -6,23 +6,19 @@ export async function findSimilarChunks(
     queryEmbedding:number[],
     limit:number = 5
 ) {
-    const query = `
+    const result = await pool.query(`
     SELECT
-        id,
-        document_id,
         content,
         chunk_index,
-        embedding <=> $1::vector AS distance
+        embedding <=> $1 AS distance
     FROM document_chunks
-    ORDER BY distance ASC
-    LIMIT $2;
-    `;
-
-    const embeddingString = `[${queryEmbedding.join(",")}]`;
-    const result = await pool.query(query,[
-        embeddingString,
+    ORDER BY embedding <=> $1
+    LIMIT $2
+    `,[
+        JSON.stringify(queryEmbedding),
         limit,
-    ])
+    ]
+)
     return result.rows;
 
 }
