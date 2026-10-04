@@ -20,6 +20,5 @@ export async function generateAnswer(
         contents:prompt
     })
 
-    console.log("🦹‍♀️",response,"😒")
     return response.text ?? ""
 }

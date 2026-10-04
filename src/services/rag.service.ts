@@ -3,15 +3,27 @@ import { findSimilarChunks } from "./retrieval.service.js";
 import { generateAnswer } from "./generation.service.js";
 
 export async function answerQuestion(
-    question:string
-) : Promise<string> {
-    const questionEmbedding = await generateEmbedding(question)
+  question: string
+): Promise<string> {
+  // 1. Convert question into an embedding
+  const queryEmbedding = await generateEmbedding(question);
 
-    const results = await findSimilarChunks(questionEmbedding,3)
+  // 2. Retrieve relevant chunks
+  const chunks = await findSimilarChunks(
+    queryEmbedding,
+    5
+  );
 
-    const context = results.map((result)=>result?.content).join("\n");
+  // 3. Combine retrieved chunks into context
+  const context = chunks
+    .map((chunk) => chunk.content)
+    .join("\n\n");
 
-    const answer = await generateAnswer(question,context)
+  // 4. Ask the LLM to answer using that context
+  const answer = await generateAnswer(
+    question,
+    context
+  );
 
-    return answer
+  return answer;
 }
