@@ -1,6 +1,6 @@
 import { countTokens } from "./token.service.js";
 
-export async function chunkTest(
+export async function chunkText(
     text: string,
     maxTokens: number = 100,
     overlapSentences: number = 1

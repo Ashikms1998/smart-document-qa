@@ -20,7 +20,7 @@
 
 import "dotenv/config";
 import { extractTextFromTxt } from "./services/document-extraction.service.js";
-import {chunkTest} from "./services/chunking.service.js"
+import {chunkText} from "./services/chunking.service.js"
 import { countTokens } from "./services/token.service.js";
 
 async function testExtraction() {
@@ -28,7 +28,7 @@ async function testExtraction() {
         "src/test-documents/sample_paragraph.txt"
     )
 
-    const chunks = await chunkTest(text,100,1)
+    const chunks = await chunkText(text,100,1)
 
     for (const [index, chunk] of chunks.entries()) {
     const tokenCount = await countTokens(chunk);
