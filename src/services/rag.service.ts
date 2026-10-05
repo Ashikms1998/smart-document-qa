@@ -3,7 +3,8 @@ import { findSimilarChunks } from "./retrieval.service.js";
 import { generateAnswer } from "./generation.service.js";
 
 export async function answerQuestion(
-  question: string
+  question: string,
+    documentId: string
 ): Promise<string> {
   // 1. Convert question into an embedding
   const queryEmbedding = await generateEmbedding(question);
@@ -11,6 +12,7 @@ export async function answerQuestion(
   // 2. Retrieve relevant chunks
   const chunks = await findSimilarChunks(
     queryEmbedding,
+    documentId,
     5
   );
 
