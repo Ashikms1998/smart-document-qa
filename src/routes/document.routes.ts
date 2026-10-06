@@ -3,6 +3,7 @@ import { ingestDocument } from "../services/document-ingestion.service.js";
 import { answerQuestion } from "../services/rag.service.js";
 import multer from "multer"
 import { extractTextFromPdf } from "../services/document-extraction.service.js";
+import { documentExist } from "../services/document.services.js";
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -19,8 +20,19 @@ router.post("/", upload.single("file"), async (req, res) => {
             });
         }
 
+        if (req.file.mimetype !== "application/pdf") {
+            return res.status(400).json({
+                message: "Only PDF files are supported",
+            });
+        }
+
         const text = await extractTextFromPdf(req.file.buffer)
 
+        if (!text.trim()) {
+            return res.status(400).json({
+                message: "Could not extract text from the PDF",
+            });
+        }
 
         const result = await ingestDocument(req.file.originalname, text)
         return res.status(201).json(result);
@@ -39,8 +51,15 @@ router.post("/:documentId/questions", async (req, res) => {
     try {
         const { documentId } = req.params;
         const { question } = req.body;
+        const exist = await documentExist(documentId)
 
-        if (!question) {
+        if(!exist){
+            return res.status(404).json({
+                message:"Document not found",
+            })
+        }
+
+        if (typeof question!=="string" || !question.trim()) {
             return res.status(400).json({
                 message: "question is required",
             });
