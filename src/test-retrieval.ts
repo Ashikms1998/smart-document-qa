@@ -4,11 +4,13 @@ import { findSimilarChunks } from "./services/retrieval.service.js";
 
 async function testRetreival() {
     const question =
-        "How does AI improve workplace efficiency?";
+        "Why is PostgreSQL useful for backend applications?";
 
     const queryEmbedding = await generateEmbedding(question);
 
-    const results = await findSimilarChunks(queryEmbedding, 5);
+    const results = await findSimilarChunks(queryEmbedding,
+        "86cd51b0-2ae6-4eac-863e-a5820fbf5e2b",
+        5);
 
     console.log("\nQuestion:");
     console.log(question);

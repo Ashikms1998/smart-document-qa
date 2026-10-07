@@ -28,3 +28,18 @@ export async function saveChunk(
     return result.rows[0];
 
 }
+
+
+export async function documentExist(documentId:string):Promise<boolean> {
+    const result = await pool.query(
+        `
+        SELECT 1
+        FROM documents
+        WHERE id = $1
+        LIMIT 1
+        `,
+        [documentId]
+    );
+
+    return result.rowCount !== null && result.rowCount > 0;
+}
