@@ -29,3 +29,40 @@ export async function registerUser(
     );
     return result.rows[0];
 }
+
+export async function loginUser(
+    email: string,
+    password: string
+) {
+
+    const result = await pool.query(
+        `
+    SELECT id,email,password_hash,created_at
+    FROM users
+    WHERE email = $1
+    `,
+        [email]
+    );
+
+    const user = result.rows[0]
+
+    if (!user) {
+        throw new Error("Invalid email or password");
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+        password,
+        user.password_hash
+    );
+
+    if (!isPasswordValid) {
+        throw new Error("Invalid email or password");
+    }
+
+    return {
+        id: user.id,
+        email: user.email,
+        created_at: user.created_at,
+    };
+
+}
