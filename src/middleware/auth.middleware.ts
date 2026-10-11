@@ -11,7 +11,7 @@ if(!JWT_SECRET){
 export interface AuthenticatedRequest
     extends Request {
         userId?:string
-    }
+}
 
 export function authenticate(
     req:AuthenticatedRequest,
@@ -38,7 +38,6 @@ export function authenticate(
         token,
         JWT_SECRET!
     ) as {userId:string}
-    
 
     req.userId = decoded.userId
 
