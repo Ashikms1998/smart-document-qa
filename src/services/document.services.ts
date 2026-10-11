@@ -47,3 +47,31 @@ export async function documentBelongsToUser(
 
     return result.rowCount !== null && result.rowCount > 0;
 }
+
+export async function getUserDocument(userId:string) {
+    const result = await pool.query(
+        `
+        SELECT id, filename,created_at
+        FROM documents
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        `,
+        [userId]
+    )
+    return result.rows;
+}
+
+export async function deleteUserDocument(
+    docuemntId:string,
+    userId:string): Promise<boolean> {
+        const result = await pool.query(
+            `
+            DELETE FROM documents
+            WHERE id = $1
+            AND user_id = $2
+            RETURNING id
+            `,
+            [docuemntId,userId]
+        );
+        return result.rowCount !==null&&result.rowCount > 0;
+}
