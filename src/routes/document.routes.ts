@@ -3,7 +3,7 @@ import { ingestDocument } from "../services/document-ingestion.service.js";
 import { answerQuestion } from "../services/rag.service.js";
 import multer from "multer"
 import { extractTextFromPdf } from "../services/document-extraction.service.js";
-import { documentBelongsToUser } from "../services/document.services.js";
+import { deleteUserDocument, documentBelongsToUser, getUserDocument } from "../services/document.services.js";
 import { authenticate, AuthenticatedRequest } from "../middleware/auth.middleware.js";
 
 const upload = multer({
@@ -53,6 +53,28 @@ router.post(
     })
 
 
+router.get(
+    "/",
+    authenticate,
+    async (req: AuthenticatedRequest, res) => {
+        try {
+            const documents = await getUserDocument(
+                req.userId!
+            );
+
+            return res.status(200).json({
+                documents,
+            });
+        } catch (error) {
+            console.error("Fetching documents failed:", error);
+
+            return res.status(500).json({
+                message: "Failed to fetch documents",
+            });
+        }
+    }
+);
+
 router.post("/:documentId/questions", authenticate, async (req: AuthenticatedRequest, res) => {
     try {
         const { documentId } = req.params;
@@ -94,5 +116,37 @@ router.post("/:documentId/questions", authenticate, async (req: AuthenticatedReq
         });
     }
 })
+
+router.delete(
+    "/:documentId",
+    authenticate,
+    async (req: AuthenticatedRequest, res) => {
+        try {
+            const { documentId } = req.params;
+            if (!documentId || typeof documentId !== "string") {
+                return res.status(400).json({ message: "Invalid document ID" });
+            }
+            const deleted = await deleteUserDocument(
+                documentId,
+                req.userId!
+            )
+
+            if (!deleted) {
+                return res.status(404).json({
+                    message: "Document not found"
+                });
+            }
+
+            return res.status(204).send();
+
+        } catch (error) {
+            console.error("Document deletion failed:", error);
+
+            return res.status(500).json({
+                message: "Failed to delete document",
+            });
+        }
+    }
+)
 
 export default router;
