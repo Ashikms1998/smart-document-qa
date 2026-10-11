@@ -3,7 +3,8 @@ import { ingestDocument } from "../services/document-ingestion.service.js";
 import { answerQuestion } from "../services/rag.service.js";
 import multer from "multer"
 import { extractTextFromPdf } from "../services/document-extraction.service.js";
-import { documentExist } from "../services/document.services.js";
+import { documentBelongsToUser } from "../services/document.services.js";
+import { authenticate, AuthenticatedRequest } from "../middleware/auth.middleware.js";
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -11,55 +12,69 @@ const upload = multer({
 
 const router = Router();
 
-router.post("/", upload.single("file"), async (req, res) => {
-    try {
+router.post(
+    "/", authenticate,
+    upload.single("file"),
+    async (req: AuthenticatedRequest, res) => {
+        try {
 
-        if (!req.file) {
-            return res.status(400).json({
-                message: "File is required",
-            });
+            if (!req.file) {
+                return res.status(400).json({
+                    message: "File is required",
+                });
+            }
+
+            if (req.file.mimetype !== "application/pdf") {
+                return res.status(400).json({
+                    message: "Only PDF files are supported",
+                });
+            }
+
+            const text = await extractTextFromPdf(req.file.buffer)
+
+            if (!text.trim()) {
+                return res.status(400).json({
+                    message: "Could not extract text from the PDF",
+                });
+            }
+
+            const result = await ingestDocument(req.file.originalname,
+                text,
+                req.userId!)
+            return res.status(201).json(result);
+
+        } catch (error) {
+            console.error("Document ingestion failed:", error)
+
+            return res.status(500).json({
+                message: "Failed to ingest document",
+            })
         }
-
-        if (req.file.mimetype !== "application/pdf") {
-            return res.status(400).json({
-                message: "Only PDF files are supported",
-            });
-        }
-
-        const text = await extractTextFromPdf(req.file.buffer)
-
-        if (!text.trim()) {
-            return res.status(400).json({
-                message: "Could not extract text from the PDF",
-            });
-        }
-
-        const result = await ingestDocument(req.file.originalname, text)
-        return res.status(201).json(result);
-
-    } catch (error) {
-        console.error("Document ingestion failed:", error)
-
-        return res.status(500).json({
-            message: "Failed to ingest document",
-        })
-    }
-})
+    })
 
 
-router.post("/:documentId/questions", async (req, res) => {
+router.post("/:documentId/questions", authenticate, async (req: AuthenticatedRequest, res) => {
     try {
         const { documentId } = req.params;
-        const { question } = req.body;
-        const exist = await documentExist(documentId)
 
-        if(!exist){
+        if (!documentId || typeof documentId !== "string") {
+            return res.status(400).json({ message: "Invalid document ID" });
+        }
+
+        const { question } = req.body;
+
+        const belongsToUser = await documentBelongsToUser(
+            documentId,
+            req.userId!
+        )
+
+        if (!belongsToUser) {
             return res.status(404).json({
-                message:"Document not found",
+                message: "Document not found",
             })
         }
 
-        if (typeof question!=="string" || !question.trim()) {
+        if (typeof question !== "string" || !question.trim()) {
             return res.status(400).json({
                 message: "question is required",
             });

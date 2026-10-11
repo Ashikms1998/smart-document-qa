@@ -30,15 +30,19 @@ export async function saveChunk(
 }
 
 
-export async function documentExist(documentId:string):Promise<boolean> {
+export async function documentBelongsToUser(
+    documentId: string,
+    userId: string
+): Promise<boolean> {
     const result = await pool.query(
         `
         SELECT 1
         FROM documents
         WHERE id = $1
+            AND user_id = $2
         LIMIT 1
         `,
-        [documentId]
+        [documentId, userId]
     );
 
     return result.rowCount !== null && result.rowCount > 0;

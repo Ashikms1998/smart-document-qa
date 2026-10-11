@@ -4,16 +4,17 @@ import { generateEmbedding } from "./embedding.services.js";
 
 export async function ingestDocument(
   filename: string,
-  text: string
+  text: string,
+  userId:string
 ) {
   // 1. Create document record
   const documentResult = await pool.query(
     `
-    INSERT INTO documents (filename)
-    VALUES ($1)
+    INSERT INTO documents (filename,user_id)
+    VALUES ($1,$2)
     RETURNING id
     `,
-    [filename]
+    [filename,userId]
   );
 
   const documentId = documentResult.rows[0].id;
