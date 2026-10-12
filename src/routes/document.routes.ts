@@ -102,10 +102,10 @@ router.post("/:documentId/questions", authenticate, async (req: AuthenticatedReq
             });
         }
 
-        const answer = await answerQuestion(question, documentId)
+        const result = await answerQuestion(question, documentId)
 
         return res.status(200).json({
-            answer,
+            result
         });
 
     } catch (error) {

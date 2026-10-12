@@ -4,12 +4,12 @@ import { findSimilarChunks } from "./services/retrieval.service.js";
 
 async function testRetreival() {
     const question =
-        "Why is PostgreSQL useful for backend applications?";
+        "What are the disadvantage of RAG in production?";
 
     const queryEmbedding = await generateEmbedding(question);
 
     const results = await findSimilarChunks(queryEmbedding,
-        "86cd51b0-2ae6-4eac-863e-a5820fbf5e2b",
+        "256e64b3-86e6-4aaf-8f19-17ade5b73cfc",
         5);
 
     console.log("\nQuestion:");
@@ -19,7 +19,8 @@ async function testRetreival() {
 
     for (const result of results) {
         console.log("\n--------------------");
-        console.log("Chunk:", result.chunk_index);
+        console.log("Chunk:", result.chunkIndex);
+        console.log("Filename:", result.filename);
         console.log("Distance:", result.distance);
         console.log("Content:", result.content);
     }
