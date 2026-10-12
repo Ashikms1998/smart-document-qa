@@ -5,7 +5,7 @@ import { generateAnswer } from "./generation.service.js";
 export async function answerQuestion(
     question: string,
     documentId: string
-): Promise<string> {
+){
     // 1. Convert question into an embedding
     const queryEmbedding = await generateEmbedding(question);
 
@@ -33,5 +33,11 @@ export async function answerQuestion(
         context
     );
 
-    return answer;
+    const sources = chunks.map((chunk)=>({
+        filename:chunk.filename,
+        chunkIndex:chunk.chunkIndex,
+        content:chunk.content
+    }));
+
+    return {answer,sources};
 }

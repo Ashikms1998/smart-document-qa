@@ -9,12 +9,15 @@ export async function findSimilarChunks(
 ) {
     const result = await pool.query(`
     SELECT
-        content,
-        chunk_index,
-        embedding <=> $1 AS distance
-    FROM document_chunks
-    WHERE document_id = $2
-    ORDER BY embedding <=> $1
+        dc.content,
+        dc.chunk_index AS "chunkIndex",
+        d.filename,
+        dc.embedding <=> $1 AS distance
+    FROM document_chunks dc
+    JOIN documents d
+        ON dc.document_id = d.id
+    WHERE dc.document_id = $2
+    ORDER BY dc.embedding <=> $1
     LIMIT $3
     `,[
         JSON.stringify(queryEmbedding),
